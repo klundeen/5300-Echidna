@@ -320,7 +320,7 @@ QueryResult *SQLExec::show_index(const ShowStatement *statement) {
     Handles *handles = SQLExec::indices->select();
     ValueDicts *rows = new ValueDicts;
 
-    u_long n = handles->size() - 2;
+    u_long n = handles->size();
 
     for (auto const &handle: *handles) {
         ValueDict *row = SQLExec::indices->project(handle, column_names);

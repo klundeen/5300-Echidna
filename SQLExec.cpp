@@ -323,7 +323,7 @@ QueryResult *SQLExec::show_index(const ShowStatement *statement) {
     u_long n = handles->size() - 2;
 
     for (auto const &handle: *handles) {
-        ValueDict *row = SQLExec::tables->project(handle, column_names);
+        ValueDict *row = SQLExec::indices->project(handle, column_names);
         Identifier table_name = row->at("index_name").s;
         if (table_name != Tables::TABLE_NAME && table_name != Columns::TABLE_NAME)
             rows->push_back(row);

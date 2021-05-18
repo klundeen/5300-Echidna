@@ -102,7 +102,8 @@ QueryResult *SQLExec::del(const DeleteStatement *statement) {
 }
 
 QueryResult *SQLExec::select(const SelectStatement *statement) {
-    EvalPlan *plan = new EvalPlan(EvalPlan::PlanType::TableScan);
+    EvalPlan::PlanType table = EvalPlan::PlanType::TableScan;
+    EvalPlan *plan = new EvalPlan(table);
 
     if (statement->whereClause != nullptr) {
         plan = new EvalPlan(get_where_conjunction(statement->whereClause), plan);

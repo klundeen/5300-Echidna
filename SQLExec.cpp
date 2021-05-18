@@ -4,7 +4,7 @@
  * @see "Seattle University, CPSC5300, Spring 2021"
  */
 #include "SQLExec.h"
-#inlude "EvalPlan.h"
+#include "EvalPlan.h"
 
 using namespace std;
 using namespace hsql;

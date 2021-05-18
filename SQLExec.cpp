@@ -10,14 +10,9 @@ using namespace hsql;
 
 // define static data
 Tables *SQLExec::tables = nullptr;
-Indices* SQLExec::indices = nullptr;
+Indices *SQLExec::indices = nullptr;
 
-/**
- * Makes the query result printable
- * @param out Ostream
- * @param qres the QueryResult to print
- * @return out Ostream
- */
+// make query result be printable
 ostream &operator<<(ostream &out, const QueryResult &qres) {
     if (qres.column_names != nullptr) {
         for (auto const &column_name: *qres.column_names)
@@ -50,7 +45,7 @@ ostream &operator<<(ostream &out, const QueryResult &qres) {
     out << qres.message;
     return out;
 }
-//cleanup method for queries
+
 QueryResult::~QueryResult() {
     if (column_names != nullptr)
         delete column_names;
@@ -70,14 +65,11 @@ QueryResult::~QueryResult() {
  */
 QueryResult *SQLExec::execute(const SQLStatement *statement) {
     // initialize _tables table, if not yet present
-    if (SQLExec::tables == nullptr)
+    if (SQLExec::tables == nullptr) {
         SQLExec::tables = new Tables();
-
-    //initialize _indices indice if not yet present
-    if (SQLExec::indices == nullptr) {
         SQLExec::indices = new Indices();
     }
-    
+
     try {
         switch (statement->type()) {
             case kStmtCreate:
@@ -86,6 +78,12 @@ QueryResult *SQLExec::execute(const SQLStatement *statement) {
                 return drop((const DropStatement *) statement);
             case kStmtShow:
                 return show((const ShowStatement *) statement);
+            case kStmtInsert:
+                return insert((const InsertStatement *) statement);
+            case kStmtDelete:
+                return del((const DeleteStatement *) statement);
+            case kStmtSelect:
+                return select((const SelectStatement *) statement);
             default:
                 return new QueryResult("not implemented");
         }
@@ -93,12 +91,19 @@ QueryResult *SQLExec::execute(const SQLStatement *statement) {
         throw SQLExecError(string("DbRelationError: ") + e.what());
     }
 }
-/**
- * Pull out column name and attributes from AST's column definition clause
- * @param col                AST column definition
- * @param column_name        returned by reference
- * @param column_attributes  returned by reference
- */
+
+QueryResult *SQLExec::insert(const InsertStatement *statement) {
+    return new QueryResult("INSERT statement not yet implemented");  // FIXME
+}
+
+QueryResult *SQLExec::del(const DeleteStatement *statement) {
+    return new QueryResult("DELETE statement not yet implemented");  // FIXME
+}
+
+QueryResult *SQLExec::select(const SelectStatement *statement) {
+    return new QueryResult("SELECT statement not yet implemented");  // FIXME
+}
+
 void
 SQLExec::column_definition(const ColumnDefinition *col, Identifier &column_name, ColumnAttribute &column_attribute) {
     column_name = col->name;
@@ -167,7 +172,7 @@ QueryResult *SQLExec::create_table(const CreateStatement *statement) {
             else
                 table.create();
 
-        } catch (exception &e) {
+        } catch (...) {
             // attempt to remove from _columns
             try {
                 for (auto const &handle: c_handles)
@@ -191,57 +196,48 @@ QueryResult *SQLExec::create_table(const CreateStatement *statement) {
  * @return QueryResult  The result of the create query
  */
 QueryResult *SQLExec::create_index(const CreateStatement *statement) {
-    Identifier table_name = statement->tableName;
     Identifier index_name = statement->indexName;
-    Identifier index_type;
-    bool is_unique;
+    Identifier table_name = statement->tableName;
 
-    Handles c_handles;
+    // get underlying relation
+    DbRelation &table = SQLExec::tables->get_table(table_name);
+
+    // check that given columns exist in table
+    const ColumnNames &table_columns = table.get_column_names();
+    for (auto const &col_name: *statement->indexColumns)
+        if (find(table_columns.begin(), table_columns.end(), col_name) == table_columns.end())
+            throw SQLExecError(string("Column '") + col_name + "' does not exist in " + table_name);
+
+    // insert a row for every column in index into _indices
     ValueDict row;
-    row["table_name"] = table_name;
-
+    row["table_name"] = Value(table_name);
+    row["index_name"] = Value(index_name);
+    row["index_type"] = Value(statement->indexType);
+    row["is_unique"] = Value(string(statement->indexType) == "BTREE"); // assume HASH is non-unique --
+    int seq = 0;
+    Handles i_handles;
     try {
-        index_type = statement->indexType;
-    } catch (exception& e) {
-        index_type = "BTREE";
-    }
-
-    if (index_type == "BTREE") {
-        is_unique = true;
-    } else {
-        is_unique = false;
-    }
-
-    row["table_name"] = table_name;
-    row["index_name"] = index_name;
-    row["seq_in_index"] = 0;
-    row["index_type"] = index_type;
-    row["is_unique"] = is_unique;
-
-    try {
-        for (auto const& column_name : *statement->indexColumns) {
-            row["seq_in_index"].n += 1;
-            row["column_name"] = string(column_name);
-            c_handles.push_back(SQLExec::indices->insert(&row));
+        for (auto const &col_name: *statement->indexColumns) {
+            row["seq_in_index"] = Value(++seq);
+            row["column_name"] = Value(col_name);
+            i_handles.push_back(SQLExec::indices->insert(&row));
         }
-        DbIndex& index = SQLExec::indices->get_index(table_name, index_name);
+
+        DbIndex &index = SQLExec::indices->get_index(table_name, index_name);
         index.create();
-    }
-    catch (exception& e) {
-        for (auto const &handle : c_handles) {
-            SQLExec::indices->del(handle);
-        }
-        throw;
-    }
 
+    } catch (...) {
+        // attempt to remove from _indices
+        try {  // if any exception happens in the reversal below, we still want to re-throw the original ex
+            for (auto const &handle: i_handles)
+                SQLExec::indices->del(handle);
+        } catch (...) {}
+        throw;  // re-throw the original exception (which should give the client some clue as to why it did
+    }
     return new QueryResult("created index " + index_name);
 }
 
-/**
- * Drop the specified table name or index no other implementation for any other operation
- * @param statement     statement with table name/index to drop
- * @return QueryResult  The result of the drop query
- */
+// DROP ...
 QueryResult *SQLExec::drop(const DropStatement *statement) {
     switch (statement->type) {
         case DropStatement::kTable:
@@ -268,26 +264,19 @@ QueryResult *SQLExec::drop_table(const DropStatement *statement) {
     // get the table
     DbRelation &table = SQLExec::tables->get_table(table_name);
 
-    //get indices
-    DbRelation& indices = SQLExec::tables->get_table(Indices::TABLE_NAME);
-    Handles* indices_handles = indices.select(&where);
-    //Get name of indices
-    IndexNames index_id = SQLExec::indices->get_index_names(table_name);
-
-    //Deleting indices from relation
-    for (auto const& handle : *indices_handles)
-        indices.del(handle);
-
-    //getting index name and dropping them
-    for (auto const& id : index_id) {
-        DbIndex& index = SQLExec::indices->get_index(table_name, id);
-        index.drop();
+    // remove any indices
+    for (auto const &index_name: SQLExec::indices->get_index_names(table_name)) {
+        DbIndex &index = SQLExec::indices->get_index(table_name, index_name);
+        index.drop();  // drop the index
     }
-    delete indices_handles;
-    
+    Handles *handles = SQLExec::indices->select(&where);
+    for (auto const &handle: *handles)
+        SQLExec::indices->del(handle);  // remove all rows from _indices for each index on this table
+    delete handles;
+
     // remove from _columns schema
     DbRelation &columns = SQLExec::tables->get_table(Columns::TABLE_NAME);
-    Handles *handles = columns.select(&where);
+    handles = columns.select(&where);
     for (auto const &handle: *handles)
         columns.del(handle);
     delete handles;
@@ -310,21 +299,23 @@ QueryResult *SQLExec::drop_table(const DropStatement *statement) {
 QueryResult *SQLExec::drop_index(const DropStatement *statement) {
     Identifier table_name = statement->name;
     Identifier index_name = statement->indexName;
-    DbIndex& index = SQLExec::indices->get_index(table_name, index_name);
-    ValueDict where;
-    where["table_name"] = table_name;
-    where["index_name"] = index_name;
 
-    Handles* index_handles = SQLExec::indices->select(&where);
+    // drop index
+    DbIndex &index = SQLExec::indices->get_index(table_name, index_name);
     index.drop();
 
-    for (unsigned int i = 0; i < index_handles->size(); i++) {
-        SQLExec::indices->del(index_handles->at(i));
-    }
+    // remove rows from _indices for this index
+    ValueDict where;
+    where["table_name"] = Value(table_name);
+    where["index_name"] = Value(index_name);
+    Handles *handles = SQLExec::indices->select(&where);
+    for (auto const &handle: *handles)
+        SQLExec::indices->del(handle);
+    delete handles;
 
-    delete index_handles;
     return new QueryResult("dropped index " + index_name);
 }
+
 /**
  * Internal method for show statement, shall call show columns, table, index...
  * @return QueryResult  The result of the show query
@@ -347,44 +338,41 @@ QueryResult *SQLExec::show(const ShowStatement *statement) {
  * @return QueryResult  The result of the show index query
  */
 QueryResult *SQLExec::show_index(const ShowStatement *statement) {
-
     ColumnNames *column_names = new ColumnNames;
     ColumnAttributes *column_attributes = new ColumnAttributes;
-
-    ValueDict where;
-    where["table_name"] = Value(statement->tableName);
-
     column_names->push_back("table_name");
-    column_names->push_back("index_name");
-    column_names->push_back("seq_in_index");
-    column_names->push_back("column_name");
-    column_names->push_back("index_type");
-    column_names->push_back("is_unique");
     column_attributes->push_back(ColumnAttribute(ColumnAttribute::TEXT));
 
-    Handles *handles = SQLExec::indices->select();
-    ValueDicts *rows = new ValueDicts;
+    column_names->push_back("index_name");
+    column_attributes->push_back(ColumnAttribute(ColumnAttribute::TEXT));
 
+    column_names->push_back("column_name");
+    column_attributes->push_back(ColumnAttribute(ColumnAttribute::TEXT));
+
+    column_names->push_back("seq_in_index");
+    column_attributes->push_back(ColumnAttribute(ColumnAttribute::INT));
+
+    column_names->push_back("index_type");
+    column_attributes->push_back(ColumnAttribute(ColumnAttribute::TEXT));
+
+    column_names->push_back("is_unique");
+    column_attributes->push_back(ColumnAttribute(ColumnAttribute::BOOLEAN));
+
+    ValueDict where;
+    where["table_name"] = Value(string(statement->tableName));
+    Handles *handles = SQLExec::indices->select(&where);
     u_long n = handles->size();
 
+    ValueDicts *rows = new ValueDicts;
     for (auto const &handle: *handles) {
         ValueDict *row = SQLExec::indices->project(handle, column_names);
-        Identifier table_name = row->at("index_name").s;
-        if (table_name != Tables::TABLE_NAME && table_name != Columns::TABLE_NAME)
-            rows->push_back(row);
-        else
-            delete row;
+        rows->push_back(row);
     }
     delete handles;
-
-
-
-    return new QueryResult(column_names, column_attributes, rows, "successfully returned " + to_string(n) + " rows");
+    return new QueryResult(column_names, column_attributes, rows,
+                           "successfully returned " + to_string(n) + " rows");
 }
-/**
- * Shows all current tables in DB
- * @return QueryResult  The result of the show columns query
- */
+
 QueryResult *SQLExec::show_tables() {
     ColumnNames *column_names = new ColumnNames;
     column_names->push_back("table_name");
@@ -436,3 +424,4 @@ QueryResult *SQLExec::show_columns(const ShowStatement *statement) {
     delete handles;
     return new QueryResult(column_names, column_attributes, rows, "successfully returned " + to_string(n) + " rows");
 }
+

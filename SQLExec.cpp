@@ -4,6 +4,7 @@
  * @see "Seattle University, CPSC5300, Spring 2021"
  */
 #include "SQLExec.h"
+#inlude "EvalPlan.h"
 
 using namespace std;
 using namespace hsql;
@@ -101,6 +102,12 @@ QueryResult *SQLExec::del(const DeleteStatement *statement) {
 }
 
 QueryResult *SQLExec::select(const SelectStatement *statement) {
+    EvalPlan *plan = new EvalPlan(EvalPlan::PlanType::TableScan);
+
+    if (statement->whereClause != nullptr) {
+        plan = new EvalPlan(get_where_conjunction(statement->whereClause), plan);
+    }
+
     return new QueryResult("SELECT statement not yet implemented");  // FIXME
 }
 

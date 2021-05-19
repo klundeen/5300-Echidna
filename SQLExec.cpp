@@ -47,6 +47,8 @@ ostream &operator<<(ostream &out, const QueryResult &qres) {
     return out;
 }
 
+
+
 QueryResult::~QueryResult() {
     if (column_names != nullptr)
         delete column_names;
@@ -102,11 +104,11 @@ QueryResult *SQLExec::del(const DeleteStatement *statement) {
 }
 
 QueryResult *SQLExec::select(const SelectStatement *statement) {
-    EvalPlan::PlanType table = EvalPlan::PlanType::TableScan;
+    DbRelation table = tables->get_table(string(statement->fromTable->name));
     EvalPlan *plan = new EvalPlan(table);
 
     if (statement->whereClause != nullptr) {
-        plan = new EvalPlan(get_where_conjunction(statement->whereClause), plan);
+        plan = new EvalPlan(get_where_conjunction(statement->whereClaus), plan);
     }
 
     return new QueryResult("SELECT statement not yet implemented");  // FIXME

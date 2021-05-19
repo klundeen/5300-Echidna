@@ -48,6 +48,61 @@ ostream &operator<<(ostream &out, const QueryResult &qres) {
 }
 
 
+void get_where_conjunction_recursive(const Expr *expr, ValueDict &where) {
+    if (expr == nullptr) {
+        return;
+    }
+    switch (expr->type) {
+        case kExprOperator:
+            if (expr->opType == Expr::AND) {
+                get_where_conjunction_recursive(expr->expr, where);
+                get_where_conjunction_recursive(expr->expr2, where);
+            } else if (expr->opType == Expr::SIMPLE_OP){
+                if (expr->opChar == '=') {
+                    string column_name;
+                    if (expr->expr->type == kExprColumnRef) {
+                        column_name = string(expr->expr->name);
+                    } else {
+                        throw SQLExecError("WHERE Operand of ColumnRef expected but not found");
+                    }
+                    ExprType expr2Type = expr->expr2->type;
+                    if (expr2Type == kExprLiteralInt) {
+                        where[column_name] = Value(int32_t(expr->expr2->ival));
+                    } else if (expr2Type == kExprLiteralString){
+                        where[column_name] = Value(string(expr->expr2->name));
+                    } else {
+                        throw SQLExecError("WHERE Operand data type not supported");
+                    }
+                } else {
+                    throw SQLExecError("WHERE Operator" + string(expr->opChar) + " not supported");
+                }
+            } else {
+                throw SQLExecError("WHERE Operator not supported");
+            }
+            break;
+        case kExprColumnRef:
+            break;
+        case kExprStar:
+            break;
+        case kExprLiteralString:
+            break;
+        case kExprLiteralFloat:
+            break;
+        case kExprLiteralInt:
+            break;
+        case kExprFunctionRef:
+            break;
+        default:
+            throw SQLExecError("WHERE Operator not supported");
+            break;
+    }
+}
+
+ValueDict get_where_conjunction(const Expr *expr) {
+    ValueDict ret;
+    get_where_conjunction_recursive(expr, ret);
+    return ret;
+}
 
 QueryResult::~QueryResult() {
     if (column_names != nullptr)

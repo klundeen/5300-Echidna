@@ -166,7 +166,22 @@ QueryResult *SQLExec::select(const SelectStatement *statement) {
         plan = new EvalPlan(get_where_conjunction(statement->whereClaus), plan);
     }
 
-    return new QueryResult("SELECT statement not yet implemented");  // FIXME
+    ColumnNames projected_columns_names;
+    ColumnAttribute projected_column_attributes;
+    if (statement->selectList.size() == table.get_column_names().size()) {
+        projected_column_attributes = table.get_column_attributes();
+        projected_columns_names = table.get_column_names();
+        plan = new EvalPlan(EvalPlan::ProjectAll, plan);
+    } else {
+        for (char* col : statement->selectList) {
+            projected_columns_names.push_back(Identifier(col));
+        }
+        projected_column_attributes = table.get_column_attribute(projected_columns_names);
+        plan = new EvalPlan(projected_columns_names, plan)
+    }
+    EvalPlan *optimized = plan->optimize();
+    ValueDict *rows = optimized->evaluate();
+    return new QueryResult(projected_columns_names, projected_column_attributes, rows, "SELECT Completed");
 }
 
 void

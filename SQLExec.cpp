@@ -5,6 +5,7 @@
  */
 #include "SQLExec.h"
 #include "EvalPlan.h"
+#include <iostream>
 
 using namespace std;
 using namespace hsql;
@@ -159,6 +160,7 @@ QueryResult *SQLExec::del(const DeleteStatement *statement) {
 }
 
 QueryResult *SQLExec::select(const SelectStatement *statement) {
+    cout << "Reached Select Body" << endl;
     DbRelation &table = tables->get_table(string(statement->fromTable->name));
     EvalPlan *plan = new EvalPlan(table);
 

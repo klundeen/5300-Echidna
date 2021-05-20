@@ -173,12 +173,12 @@ QueryResult *SQLExec::select(const SelectStatement *statement) {
     }
     cout << "SQLExec: EvalPlan wrapped in 'SELECT'" << endl;
     ColumnNames *projected_columns_names = new ColumnNames;
-    ColumnAttributes *projected_column_attributes = new ColumnAttribute;
+    ColumnAttributes *projected_column_attributes = new ColumnAttributes;
     cout << "SQLExec: Select list from statement size: " << statement->selectList->size() << endl;
     if (statement->selectList->at(0)->type == kExprStar) {
         cout << "SQLExec: 'SELECT *' detected" << endl;
-        projected_column_attributes = table.get_column_attributes();
-        projected_columns_names = table.get_column_names();
+        *projected_column_attributes = table.get_column_attributes();
+        *projected_columns_names = table.get_column_names();
         plan = new EvalPlan(EvalPlan::ProjectAll, plan);
         cout << "SQLExec: Wrapped EvalPlan in 'SELECT *'" << endl;
     } else {
@@ -188,8 +188,8 @@ QueryResult *SQLExec::select(const SelectStatement *statement) {
             cout << "SQLExec: Added Selection to projected_column_names: " << statement->selectList->at(i)->type << endl;
             projected_columns_names->push_back(Identifier(statement->selectList->at(i)->name));
         }
-        projected_column_attributes = *table.get_column_attributes(projected_columns_names);
-        plan = new EvalPlan(&projected_columns_names, plan);
+        *projected_column_attributes = table->get_column_attributes(projected_columns_names);
+        plan = new EvalPlan(projected_columns_names, plan);
         cout << "SQLExec: Wrapped EvalPlan in 'SELECT (columns)'" << endl;
     }
 

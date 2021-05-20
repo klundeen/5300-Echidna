@@ -174,7 +174,7 @@ QueryResult *SQLExec::select(const SelectStatement *statement) {
     ColumnNames projected_columns_names;
     ColumnAttributes projected_column_attributes;
     cout << "SQLExec: Select list from statement size: " << statement->selectList->size() << endl;
-    if (statement->selectList->size() == table.get_column_names().size()) {
+    if (statement->selectList->at(0)->type == kExprStar) {
         cout << "SQLExec: 'SELECT *' detected" << endl;
         projected_column_attributes = table.get_column_attributes();
         projected_columns_names = table.get_column_names();

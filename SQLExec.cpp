@@ -74,7 +74,7 @@ void get_where_conjunction_recursive(const Expr *expr, ValueDict &where) {
                         throw SQLExecError("WHERE Operand data type not supported");
                     }
                 } else {
-                    throw SQLExecError("WHERE Operator" + string(expr->opChar) + " not supported");
+                    throw SQLExecError("WHERE Operator \"" + expr->opChar + "\" not supported");
                 }
             } else {
                 throw SQLExecError("WHERE Operator not supported");
@@ -159,28 +159,31 @@ QueryResult *SQLExec::del(const DeleteStatement *statement) {
 }
 
 QueryResult *SQLExec::select(const SelectStatement *statement) {
-    DbRelation table = tables->get_table(string(statement->fromTable->name));
+    DbRelation &table = tables->get_table(string(statement->fromTable->name));
     EvalPlan *plan = new EvalPlan(table);
 
     if (statement->whereClause != nullptr) {
-        plan = new EvalPlan(get_where_conjunction(statement->whereClaus), plan);
+        plan = new EvalPlan(get_where_conjunction(statement->whereClause), plan);
     }
 
     ColumnNames projected_columns_names;
-    ColumnAttribute projected_column_attributes;
-    if (statement->selectList.size() == table.get_column_names().size()) {
+    ColumnAttributes projected_column_attributes;
+
+    if (statement->selectList->size() == table.get_column_names().size()) {
         projected_column_attributes = table.get_column_attributes();
         projected_columns_names = table.get_column_names();
         plan = new EvalPlan(EvalPlan::ProjectAll, plan);
     } else {
-        for (char* col : statement->selectList) {
+        for (int i = 0; i < statement->selectList->size(); i++) {
             projected_columns_names.push_back(Identifier(col));
         }
-        projected_column_attributes = table.get_column_attribute(projected_columns_names);
+        projected_column_attributes = table.get_column_attributes(projected_columns_names);
         plan = new EvalPlan(projected_columns_names, plan)
     }
+
     EvalPlan *optimized = plan->optimize();
     ValueDict *rows = optimized->evaluate();
+
     return new QueryResult(projected_columns_names, projected_column_attributes, rows, "SELECT Completed");
 }
 

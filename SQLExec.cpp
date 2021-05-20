@@ -100,8 +100,10 @@ void get_where_conjunction_recursive(const Expr *expr, ValueDict &where) {
 }
 
 ValueDict* get_where_conjunction(const Expr *expr) {
+    cout << "SQLExec: In get_where_conjunction" << endl;
     ValueDict* ret = new ValueDict;
     get_where_conjunction_recursive(expr, *ret);
+    cout << "SQLExec: Successfully deconstructed WHERE clause" << endl
     return ret;
 }
 
@@ -160,31 +162,39 @@ QueryResult *SQLExec::del(const DeleteStatement *statement) {
 }
 
 QueryResult *SQLExec::select(const SelectStatement *statement) {
-    cout << "Reached Select Body" << endl;
+    cout << "SQLExec: Reached Select Body" << endl;
     DbRelation &table = tables->get_table(string(statement->fromTable->name));
     EvalPlan *plan = new EvalPlan(table);
+    cout << "SQLExec: TableScan completed" << endl;
 
     if (statement->whereClause != nullptr) {
         plan = new EvalPlan(get_where_conjunction(statement->whereClause), plan);
     }
-
+    cout << "SQLExec: EvalPlan wrapped in 'SELECT'" << endl;
     ColumnNames projected_columns_names;
     ColumnAttributes projected_column_attributes;
-
+    cout << "SQLExec: Select list from statement size: " << statement->selectList->size() << endl;
     if (statement->selectList->size() == table.get_column_names().size()) {
+        cout << "SQLExec: 'SELECT *' detected" << endl;
         projected_column_attributes = table.get_column_attributes();
         projected_columns_names = table.get_column_names();
         plan = new EvalPlan(EvalPlan::ProjectAll, plan);
+        cout << "SQLExec: Wrapped EvalPlan in 'SELECT *'" << endl;
     } else {
+        cout << "SQLExec: 'SELECT (columns)' detected" << endl;
         for (int i = 0; i < statement->selectList->size(); i++) {
+            cout << "SQLExec: Added Selection to projected_column_names: " << i << endl;
             projected_columns_names.push_back(Identifier(statement->selectList->at(i)->name));
         }
         projected_column_attributes = *table.get_column_attributes(projected_columns_names);
         plan = new EvalPlan(&projected_columns_names, plan);
+        cout << "SQLExec: Wrapped EvalPlan in 'SELECT (columns)'" << endl;
     }
 
     EvalPlan *optimized = plan->optimize();
+    cout << "SQLExec: EvalPlan Optimized" << endl;
     ValueDicts *rows = optimized->evaluate();
+    cout << "SQLExec: EvalPlan Evaluated" << endl;
 
     return new QueryResult(&projected_columns_names, &projected_column_attributes, rows, "SELECT Completed");
 }

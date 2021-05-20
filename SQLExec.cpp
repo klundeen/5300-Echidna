@@ -184,7 +184,7 @@ QueryResult *SQLExec::select(const SelectStatement *statement) {
         cout << "SQLExec: 'SELECT (columns)' detected" << endl;
         for (int i = 0; i < statement->selectList->size(); i++) {
             cout << "SQLExec: Added Selection to projected_column_names: " << i << endl;
-            projected_columns_names.push_back(Identifier(statement->selectList->at(i)->name));
+            projected_columns_names.push_back(Identifier(statement->selectList->at(i)->OpChar));
         }
         projected_column_attributes = *table.get_column_attributes(projected_columns_names);
         plan = new EvalPlan(&projected_columns_names, plan);

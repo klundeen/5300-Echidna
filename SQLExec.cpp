@@ -74,7 +74,7 @@ void get_where_conjunction_recursive(const Expr *expr, ValueDict &where) {
                         throw SQLExecError("WHERE Operand data type not supported");
                     }
                 } else {
-                    throw SQLExecError("WHERE Operator \"" + expr->opChar + "\" not supported");
+                    throw SQLExecError("WHERE Operator " + string(&expr->opChar) + " not supported");
                 }
             } else {
                 throw SQLExecError("WHERE Operator not supported");
@@ -98,7 +98,7 @@ void get_where_conjunction_recursive(const Expr *expr, ValueDict &where) {
     }
 }
 
-ValueDict get_where_conjunction(const Expr *expr) {
+ValueDict* get_where_conjunction(const Expr *expr) {
     ValueDict ret;
     get_where_conjunction_recursive(expr, ret);
     return ret;
@@ -175,16 +175,16 @@ QueryResult *SQLExec::select(const SelectStatement *statement) {
         plan = new EvalPlan(EvalPlan::ProjectAll, plan);
     } else {
         for (int i = 0; i < statement->selectList->size(); i++) {
-            projected_columns_names.push_back(Identifier(col));
+            projected_columns_names.push_back(Identifier(statement->selectList[i]));
         }
-        projected_column_attributes = table.get_column_attributes(projected_columns_names);
-        plan = new EvalPlan(projected_columns_names, plan)
+        projected_column_attributes = *table.get_column_attributes(projected_columns_names);
+        plan = new EvalPlan(&projected_columns_names, plan)
     }
 
     EvalPlan *optimized = plan->optimize();
     ValueDict *rows = optimized->evaluate();
 
-    return new QueryResult(projected_columns_names, projected_column_attributes, rows, "SELECT Completed");
+    return new QueryResult(&projected_columns_names, &projected_column_attributes, rows, "SELECT Completed");
 }
 
 void

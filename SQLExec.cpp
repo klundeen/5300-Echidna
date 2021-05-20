@@ -175,7 +175,7 @@ QueryResult *SQLExec::select(const SelectStatement *statement) {
         plan = new EvalPlan(EvalPlan::ProjectAll, plan);
     } else {
         for (int i = 0; i < statement->selectList->size(); i++) {
-            projected_columns_names.push_back(Identifier(statement->selectList[i]->name));
+            projected_columns_names.push_back(Identifier(statement->selectList->at(i)->name));
         }
         projected_column_attributes = *table.get_column_attributes(projected_columns_names);
         plan = new EvalPlan(&projected_columns_names, plan);

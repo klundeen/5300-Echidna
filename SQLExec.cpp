@@ -99,8 +99,8 @@ void get_where_conjunction_recursive(const Expr *expr, ValueDict &where) {
 }
 
 ValueDict* get_where_conjunction(const Expr *expr) {
-    ValueDict ret;
-    get_where_conjunction_recursive(expr, ret);
+    ValueDict* ret = new ValueDict;
+    get_where_conjunction_recursive(expr, *ret);
     return ret;
 }
 
@@ -178,11 +178,11 @@ QueryResult *SQLExec::select(const SelectStatement *statement) {
             projected_columns_names.push_back(Identifier(statement->selectList[i]));
         }
         projected_column_attributes = *table.get_column_attributes(projected_columns_names);
-        plan = new EvalPlan(&projected_columns_names, plan)
+        plan = new EvalPlan(&projected_columns_names, plan);
     }
 
     EvalPlan *optimized = plan->optimize();
-    ValueDict *rows = optimized->evaluate();
+    ValueDicts *rows = optimized->evaluate();
 
     return new QueryResult(&projected_columns_names, &projected_column_attributes, rows, "SELECT Completed");
 }

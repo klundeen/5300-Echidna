@@ -164,6 +164,7 @@ QueryResult *SQLExec::del(const DeleteStatement *statement) {
 QueryResult *SQLExec::select(const SelectStatement *statement) {
     cout << "SQLExec: Reached Select Body" << endl;
     DbRelation &table = tables->get_table(string(statement->fromTable->name));
+    cout << "SQLExec: Got table " << string(statement->fromTable->name) << " from data store" << endl;
     EvalPlan *plan = new EvalPlan(table);
     cout << "SQLExec: TableScan completed" << endl;
 

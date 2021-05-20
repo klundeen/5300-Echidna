@@ -103,7 +103,7 @@ ValueDict* get_where_conjunction(const Expr *expr) {
     cout << "SQLExec: In get_where_conjunction" << endl;
     ValueDict* ret = new ValueDict;
     get_where_conjunction_recursive(expr, *ret);
-    cout << "SQLExec: Successfully deconstructed WHERE clause" << endl
+    cout << "SQLExec: Successfully deconstructed WHERE clause" << endl;
     return ret;
 }
 

@@ -48,6 +48,21 @@ ostream &operator<<(ostream &out, const QueryResult &qres) {
     return out;
 }
 
+Value get_value_from_parse(Expr *value,ColumnAttribute ca,ColumnNames column, string error) {
+	 Value returnValue;
+	 switch (ca.get_data_type()) {
+		case ColumnAttribute::INT:
+			returnValue =  Value(int32_t(value->expr2->ival));
+			break;
+		case ColumnAttribute::TEXT:
+			returnValue = Value(string(value->expr2->name));
+			break;
+		default:
+			cout << "Don't know how to handle " << ca.get_data_type() << " data type in "  << error << endl;
+			return 0;
+	 }
+	 return returnValue;
+}
 
 void get_where_conjunction_recursive(const Expr *expr, ValueDict &where) {
     if (expr == nullptr) {
@@ -153,8 +168,52 @@ QueryResult *SQLExec::execute(const SQLStatement *statement) {
     }
 }
 
+
 QueryResult *SQLExec::insert(const InsertStatement *statement) {
-    return new QueryResult("INSERT statement not yet implemented");  // FIXME
+	cout << "SQLExec: Reached Select Body" << endl;
+    DbRelation &table = tables->get_table(string(statement->tableName));
+    cout << "SQLExec: Got table " << string(statement->tableName) << " from data store" << endl;
+	ColumnNames columns;
+	if(statement->columns == nullptr) {
+		columns = table.get_column_names();
+	}
+	else {
+		
+		 for (long unsigned int i = 0; i < statement->columns->size(); i++) {
+            columns.push_back(Identifier(statement->columns->at(i)));
+        }
+		
+	}
+
+    
+	ValueDict row;
+	int counter = 0;
+	for (auto const &value: *statement->values) {
+		ColumnAttribute ca;
+		for(long unsigned int i = 0;  i < table.get_column_names().size();i++)
+			if(columns.at(counter) == table.get_column_names().at(i)) {
+				ca = table.get_column_attributes()[i];
+				row["column"] = get_value_from_parse(value, ca, columns,"INSERT");
+			}
+			else {
+				cout << "Could not find " << columns.at(counter);
+			}
+		
+		
+		counter++;
+	}
+	
+	Handle t_insert = table.insert(&row);
+	
+	//Index Time
+
+	for (auto const &index_name: SQLExec::indices->get_index_names((statement->tableName))) {
+		DbIndex &index = indices->get_index(statement->tableName, index_name);
+		index.insert(t_insert);
+	}
+	string suffix = " and from " + to_string(indices->get_index_names(statement->tableName).size()) + " indices";
+
+	return new QueryResult(NULL,NULL,NULL,"successfully inserted 1 row into " + string(statement->tableName) + suffix);  // FIXME
 }
 
 QueryResult *SQLExec::del(const DeleteStatement *statement) {
@@ -183,7 +242,7 @@ QueryResult *SQLExec::select(const SelectStatement *statement) {
         cout << "SQLExec: Wrapped EvalPlan in 'SELECT *'" << endl;
     } else {
         cout << "SQLExec: 'SELECT (columns)' detected" << endl;
-        for (int i = 0; i < statement->selectList->size(); i++) {
+        for (long unsigned int i = 0; i < statement->selectList->size(); i++) {
             cout << "SQLExec: Added Selection to projected_column_names: " << i << endl;
             cout << "SQLExec: Added Selection to projected_column_names: " << statement->selectList->at(i)->type << endl;
             projected_columns_names->push_back(Identifier(statement->selectList->at(i)->name));

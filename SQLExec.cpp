@@ -50,12 +50,15 @@ ostream &operator<<(ostream &out, const QueryResult &qres) {
 
 Value get_value_from_parse(Expr *value,ColumnAttribute ca,ColumnNames column, string error) {
 	 Value returnValue;
+	 cout << "entered" << endl;
 	 switch (ca.get_data_type()) {
 		case ColumnAttribute::INT:
-			returnValue =  Value(int32_t(value->expr2->ival));
+			cout << "Sub int entered" << endl;
+			returnValue =  Value(int32_t(value->ival));
 			break;
 		case ColumnAttribute::TEXT:
-			returnValue = Value(string(value->expr2->name));
+			cout << "Sub string  entered" << endl;
+			returnValue = Value(string(value->name));
 			break;
 		default:
 			cout << "Don't know how to handle " << ca.get_data_type() << " data type in "  << error << endl;
@@ -174,6 +177,7 @@ QueryResult *SQLExec::insert(const InsertStatement *statement) {
     DbRelation &table = tables->get_table(string(statement->tableName));
     cout << "SQLExec: Got table " << string(statement->tableName) << " from data store" << endl;
 	ColumnNames columns;
+	
 	if(statement->columns == nullptr) {
 		columns = table.get_column_names();
 	}
@@ -184,28 +188,32 @@ QueryResult *SQLExec::insert(const InsertStatement *statement) {
         }
 		
 	}
-
+	cout << "SQLExec: Columns obtained" << endl;
     
 	ValueDict row;
 	int counter = 0;
 	for (auto const &value: *statement->values) {
+		
 		ColumnAttribute ca;
-		for(long unsigned int i = 0;  i < table.get_column_names().size();i++)
+		for(long unsigned int i = 0;  i < table.get_column_names().size();i++) {
+			
 			if(columns.at(counter) == table.get_column_names().at(i)) {
+				
 				ca = table.get_column_attributes()[i];
-				row["column"] = get_value_from_parse(value, ca, columns,"INSERT");
+				row[columns.at(counter)] = get_value_from_parse(value, ca, columns,"INSERT");
 			}
 			else {
-				cout << "Could not find " << columns.at(counter);
+				cout << "Could not find " << columns.at(counter) << endl;
 			}
-		
+			cout << "Exit" << endl;
+		}
 		
 		counter++;
 	}
 	
 	Handle t_insert = table.insert(&row);
 	
-	//Index Time
+	cout << "SQLExec: Index Time" << endl;
 
 	for (auto const &index_name: SQLExec::indices->get_index_names((statement->tableName))) {
 		DbIndex &index = indices->get_index(statement->tableName, index_name);

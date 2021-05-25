@@ -230,7 +230,7 @@ QueryResult *SQLExec::del(const DeleteStatement *statement) {
     EvalPlan *plan = new EvalPlan(table);
 
     if (statement->expr != nullptr) {
-        plan = new EvalPlan(get_where_conjunction(statement->whereClause), plan);
+        plan = new EvalPlan(get_where_conjunction(statement->expr), plan);
     }
 
     EvalPlan *optimized = plan->optimize();
@@ -247,7 +247,7 @@ QueryResult *SQLExec::del(const DeleteStatement *statement) {
         table.del(handle);
     }
 
-    return new QueryResult("successfully deleted " + handles->size() + " rows from " + string(statement->tableName) + " and " + index_names.size() + " indices");
+    return new QueryResult("successfully deleted " + to_string(handles->size()) + " rows from " + string(statement->tableName) + " and " + index_names.size() + " indices");
 }
 
 QueryResult *SQLExec::select(const SelectStatement *statement) {

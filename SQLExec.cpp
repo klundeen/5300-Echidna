@@ -247,7 +247,7 @@ QueryResult *SQLExec::del(const DeleteStatement *statement) {
         table.del(handle);
     }
 
-    return new QueryResult("successfully deleted " + to_string(handles->size()) + " rows from " + string(statement->tableName) + " and " + index_names.size() + " indices");
+    return new QueryResult("successfully deleted " + to_string(handles->size()) + " rows from " + string(statement->tableName) + " and " + to_string(index_names.size()) + " indices");
 }
 
 QueryResult *SQLExec::select(const SelectStatement *statement) {

@@ -225,7 +225,29 @@ QueryResult *SQLExec::insert(const InsertStatement *statement) {
 }
 
 QueryResult *SQLExec::del(const DeleteStatement *statement) {
-    return new QueryResult("DELETE statement not yet implemented");  // FIXME
+    DbRelation &table = tables->get_table(string(statement->tableName));
+
+    EvalPlan *plan = new EvalPlan(table);
+
+    if (statement->expr != nullptr) {
+        plan = new EvalPlan(get_where_conjunction(statement->whereClause), plan);
+    }
+
+    EvalPlan *optimized = plan->optimize();
+    EvalPipeline pipeline = optimized->pipeline();
+
+    IndexNames index_names = SQLExec::indices->get_index_names(Identifier(statement->tableName));
+    Handles *handles = pipeline.second;
+
+    for (auto const& handle : *handles) {
+        for (auto const& index : index_names) {
+            DbIndex &index_handle = indices->get_index(statement->tableName, index);
+            index_handle.del(handle);
+        }
+        table.del(handle);
+    }
+
+    return new QueryResult("successfully deleted " + handles->size() + " rows from " + string(statement->tableName) + " and " + index_names.size() + " indices");
 }
 
 QueryResult *SQLExec::select(const SelectStatement *statement) {

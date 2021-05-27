@@ -263,7 +263,7 @@ QueryResult *SQLExec::select(const SelectStatement *statement) {
     EvalPlan *optimized = plan->optimize();
     ValueDicts *rows = optimized->evaluate();
 
-    return new QueryResult(projected_columns_names, projected_column_attributes, rows, "SELECT Completed");
+    return new QueryResult(projected_columns_names, projected_column_attributes, rows, "successfully returned " + to_string(rows->size()) + " rows");
 }
 
 void

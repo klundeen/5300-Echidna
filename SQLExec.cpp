@@ -50,14 +50,11 @@ ostream &operator<<(ostream &out, const QueryResult &qres) {
 
 Value get_value_from_parse(Expr *value,ColumnAttribute ca,ColumnNames column, string error) {
 	 Value returnValue;
-	 cout << "entered" << endl;
 	 switch (ca.get_data_type()) {
 		case ColumnAttribute::INT:
-			cout << "Sub int entered" << endl;
 			returnValue =  Value(int32_t(value->ival));
 			break;
 		case ColumnAttribute::TEXT:
-			cout << "Sub string  entered" << endl;
 			returnValue = Value(string(value->name));
 			break;
 		default:

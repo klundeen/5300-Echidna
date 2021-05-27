@@ -196,10 +196,6 @@ QueryResult *SQLExec::insert(const InsertStatement *statement) {
 				ca = table.get_column_attributes()[i];
 				row[columns.at(counter)] = get_value_from_parse(value, ca, columns,"INSERT");
 			}
-			else {
-				cout << "Could not find " << columns.at(counter) << endl;
-			}
-			cout << "Exit" << endl;
 		}
 		
 		counter++;

@@ -58,7 +58,6 @@ int main(int argc, char *argv[]) {
                 try {
                     cout << ParseTreeToString::statement(statement) << endl;
                     QueryResult *result = SQLExec::execute(statement);
-                    cout << "sql5300: PRE-PRINT OUT" << endl;
                     cout << *result << endl;
                     delete result;
                 } catch (SQLExecError &e) {

@@ -269,8 +269,10 @@ QueryResult *SQLExec::select(const SelectStatement *statement) {
 
     cout << "REACHED" << endl;
 
-    // delete plan;
-    // delete optimized;
+    if (statement->selectList->at(0)->type == kExprStar) {
+        delete plan;
+    }
+    delete optimized;
 
     cout << "REACHED #2" << endl;
 

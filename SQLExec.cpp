@@ -266,6 +266,7 @@ QueryResult *SQLExec::select(const SelectStatement *statement) {
     ValueDicts *rows = optimized->evaluate();
 
     delete plan;
+    delete optimized;
 
     return new QueryResult(projected_columns_names, projected_column_attributes, rows, "successfully returned " + to_string(rows->size()) + " rows");
 }

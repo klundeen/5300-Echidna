@@ -270,7 +270,7 @@ QueryResult *SQLExec::select(const SelectStatement *statement) {
     cout << "REACHED" << endl;
 
     delete plan;
-    delete optimized;
+    // delete optimized;
 
     cout << "REACHED #2" << endl;
 

@@ -259,6 +259,9 @@ QueryResult *SQLExec::select(const SelectStatement *statement) {
         cout << "Size: " + to_string(projected_columns_names->size()) << endl;
         *projected_column_attributes = *table.get_column_attributes(*projected_columns_names);
         plan = new EvalPlan(projected_columns_names, plan);
+        cout << "Size after: " + to_string(projected_columns_names->size()) << endl;
+        for (auto const &column_name : *projected_columns_names)
+            cout << "Columns: " << column_name << endl;
     }
 
     EvalPlan *optimized = plan->optimize();

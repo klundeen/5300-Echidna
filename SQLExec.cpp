@@ -257,8 +257,8 @@ QueryResult *SQLExec::select(const SelectStatement *statement) {
             projected_columns_names->push_back(Identifier(statement->selectList->at(i)->name));
         }
         *projected_column_attributes = *table.get_column_attributes(*projected_columns_names);
-        ColumnNames projected_columns_names_copy = new ColumnNames(*projected_columns_names);
-        plan = new EvalPlan(&projected_columns_names_copy, plan);
+        ColumnNames *projected_columns_names_copy = new ColumnNames(*projected_columns_names);
+        plan = new EvalPlan(projected_columns_names_copy, plan);
     }
 
     EvalPlan *optimized = plan->optimize();

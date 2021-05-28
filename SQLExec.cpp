@@ -115,10 +115,8 @@ void get_where_conjunction_recursive(const Expr *expr, ValueDict &where) {
 }
 
 ValueDict* get_where_conjunction(const Expr *expr) {
-    cout << "SQLExec: In get_where_conjunction" << endl;
     ValueDict* ret = new ValueDict;
     get_where_conjunction_recursive(expr, *ret);
-    cout << "SQLExec: Successfully deconstructed WHERE clause" << endl;
     return ret;
 }
 
@@ -254,7 +252,6 @@ QueryResult *SQLExec::select(const SelectStatement *statement) {
         *projected_columns_names = table.get_column_names();
         plan = new EvalPlan(EvalPlan::ProjectAll, plan);
     } else {
-        cout << "SQLExec: 'SELECT (columns)' detected" << endl;
         for (long unsigned int i = 0; i < statement->selectList->size(); i++) {
             projected_columns_names->push_back(Identifier(statement->selectList->at(i)->name));
         }

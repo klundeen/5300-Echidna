@@ -267,6 +267,9 @@ QueryResult *SQLExec::select(const SelectStatement *statement) {
     delete plan;
     delete optimized;
 
+    cout << "REACHED #2" << endl;
+
+
     return new QueryResult(projected_columns_names, projected_column_attributes, rows, "successfully returned " + to_string(rows->size()) + " rows");
 }
 

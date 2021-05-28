@@ -256,6 +256,7 @@ QueryResult *SQLExec::select(const SelectStatement *statement) {
             cout << statement->selectList->at(i)->name << endl;
             projected_columns_names->push_back(Identifier(statement->selectList->at(i)->name));
         }
+        cout << "Size: " + to_string(projected_columns_names->size()) + endl;
         *projected_column_attributes = *table.get_column_attributes(*projected_columns_names);
         plan = new EvalPlan(projected_columns_names, plan);
     }

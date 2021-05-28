@@ -262,6 +262,8 @@ QueryResult *SQLExec::select(const SelectStatement *statement) {
     EvalPlan *optimized = plan->optimize();
     ValueDicts *rows = optimized->evaluate();
 
+    cout << "REACHED" << endl;
+
     delete plan;
     delete optimized;
 

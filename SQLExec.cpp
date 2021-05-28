@@ -235,6 +235,8 @@ QueryResult *SQLExec::del(const DeleteStatement *statement) {
         table.del(handle);
     }
 
+    delete plan;
+
     return new QueryResult("successfully deleted " + to_string(handles->size()) + " rows from " + string(statement->tableName) + " and " + to_string(index_names.size()) + " indices");
 }
 
@@ -262,6 +264,8 @@ QueryResult *SQLExec::select(const SelectStatement *statement) {
 
     EvalPlan *optimized = plan->optimize();
     ValueDicts *rows = optimized->evaluate();
+
+    delete plan;
 
     return new QueryResult(projected_columns_names, projected_column_attributes, rows, "successfully returned " + to_string(rows->size()) + " rows");
 }

@@ -132,11 +132,7 @@ QueryResult::~QueryResult() {
     }
 }
 
-/**
- * Execute the given SQL statement.
- * @param statement   the Hyrise AST of the SQL statement to execute
- * @returns           the query result (freed by caller)
- */
+
 QueryResult *SQLExec::execute(const SQLStatement *statement) {
     // initialize _tables table, if not yet present
     if (SQLExec::tables == nullptr) {
@@ -534,8 +530,7 @@ QueryResult *SQLExec::show_index(const ShowStatement *statement) {
         rows->push_back(row);
     }
     delete handles;
-    return new QueryResult(column_names, column_attributes, rows,
-                           "successfully returned " + to_string(n) + " rows");
+    return new QueryResult(column_names, column_attributes, rows, "successfully returned " + to_string(n) + " rows");
 }
 
 QueryResult *SQLExec::show_tables() {
@@ -589,5 +584,4 @@ QueryResult *SQLExec::show_columns(const ShowStatement *statement) {
     delete handles;
     return new QueryResult(column_names, column_attributes, rows, "successfully returned " + to_string(n) + " rows");
 }
-
 

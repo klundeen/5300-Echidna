@@ -6,8 +6,8 @@
  */
 #pragma once
 
-#include "../../Downloads/5300-Instructor-Milestone6_prep/5300-Instructor-Milestone6_prep/storage_engine.h"
-#include "../../Downloads/5300-Instructor-Milestone6_prep/5300-Instructor-Milestone6_prep/heap_storage.h"
+#include "storage_engine.h"
+#include "heap_storage.h"
 
 typedef std::vector<ColumnAttribute::DataType> KeyProfile;
 typedef std::vector<Value> KeyValue;

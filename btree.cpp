@@ -97,7 +97,7 @@ Handles *BTreeIndex::lookup(ValueDict *key_dict) const {
         } else {
             containingLeaf = dynamic_cast<BTreeLeaf*> (this->root);
         }
-        toReturn.push_back(containingLeaf->find_eq(key));
+        toReturn->push_back(containingLeaf->find_eq(key));
     }
     return toReturn;
 }

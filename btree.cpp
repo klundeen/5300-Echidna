@@ -72,7 +72,7 @@ void BTreeIndex::close() {
 Handles *BTreeIndex::lookup(ValueDict *key_dict) const {
     BTreeNode *lookUpResult;
     uint height = 0;
-    Handles toReturn = new Handles;
+    Handles *toReturn = new Handles;
     for (const auto entry : *key_dict) {
         BTreeLeaf *containingLeaf;
         KeyValue *key = new KeyValue;

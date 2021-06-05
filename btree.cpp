@@ -42,6 +42,7 @@ void BTreeIndex::create() {
 
 // Drop the index.
 void BTreeIndex::drop() {
+    std::cout << "CREATE 3" << std::endl;
     file.drop();
 }
 

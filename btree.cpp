@@ -78,7 +78,7 @@ Handles *BTreeIndex::lookup(ValueDict *key_dict) const {
         KeyValue *key = new KeyValue;
         key->push_back(entry.second);
         if (stat->get_height() > 1) {
-            BTreeNode *lookUpResult = dynamic_cast<BTreeInterior> (this->root);
+            BTreeNode *lookUpResult = dynamic_cast<BTreeInterior*> (this->root);
             BTreeLeaf *isLeaf;
             bool leafNodeFound = false;
             uint height = stat->get_height();

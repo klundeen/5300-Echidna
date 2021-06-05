@@ -37,6 +37,13 @@ void BTreeIndex::create() {
     std::cout << "CREATE 3" << std::endl;
     Handles *table_rows = relation.select();
     std::cout << "CREATE 4" << std::endl;
+    try {
+        for (auto const &row: *table_rows)
+            insert(row);
+    } catch (...) {
+        drop();
+        throw;
+    }
     for (auto const &row: *table_rows)
         insert(row);
     std::cout << "CREATE 5" << std::endl;

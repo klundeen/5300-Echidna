@@ -28,15 +28,15 @@ BTreeIndex::~BTreeIndex() {
 
 // Create the index.
 void BTreeIndex::create() {
-    std::cout << "CREATE 1" << std::endl;
+
     file.create();
-    std::cout << "CREATE 2" << std::endl;
+
     stat = new BTreeStat(file, STAT, STAT + 1, key_profile);
     root = new BTreeLeaf(file, stat->get_root_id(), key_profile, true);
     closed = false;
-    std::cout << "CREATE 3" << std::endl;
+
     Handles *table_rows = relation.select();
-    std::cout << "CREATE 4" << std::endl;
+
     try {
         for (auto const &row: *table_rows)
             insert(row);
@@ -44,13 +44,13 @@ void BTreeIndex::create() {
         drop();
         throw;
     }
-    std::cout << "CREATE 5" << std::endl;
+    
     delete table_rows;
 }
 
 // Drop the index.
 void BTreeIndex::drop() {
-    std::cout << "CREATE 6" << std::endl;
+   
     file.drop();
 }
 
@@ -135,7 +135,6 @@ void BTreeIndex::insert(Handle handle) {
         stat->save();
         delete root;
         root = new_root;
-        std::cout << "new root: " << *new_root << std::endl;
     }
     delete key;
     delete tkey;

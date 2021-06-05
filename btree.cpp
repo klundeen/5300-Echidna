@@ -28,7 +28,7 @@ BTreeIndex::~BTreeIndex() {
 
 // Create the index.
 void BTreeIndex::create() {
-    std::cout << "CREATE 1" << endl;
+    std::cout << "CREATE 1" << std::endl;
     file.create();
     std::cout << "CREATE 2" << endl;
     stat = new BTreeStat(file, STAT, STAT + 1, key_profile);

@@ -385,8 +385,11 @@ QueryResult *SQLExec::create_index(const CreateStatement *statement) {
             i_handles.push_back(SQLExec::indices->insert(&row));
         }
 
+        cout << "::::: Test Marker # 3" << endl;
         DbIndex &index = SQLExec::indices->get_index(table_name, index_name);
+        cout << "::::: Test Marker # 4" << endl;
         index.create();
+        cout << "::::: Test Marker # 5" << endl;
 
     } catch (...) {
         // attempt to remove from _indices

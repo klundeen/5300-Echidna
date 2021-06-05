@@ -92,7 +92,7 @@ Handles *BTreeIndex::lookup(ValueDict *key_dict) const {
                     height--;
                     lookUpResult = dynamic_cast<BTreeInterior*> (result);
                 }
-            } while (!leafNodeFound)
+            } while (!leafNodeFound);
             containingLeaf = isLeaf;
         } else {
             containingLeaf = this->root;

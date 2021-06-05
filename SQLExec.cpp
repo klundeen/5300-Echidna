@@ -359,7 +359,7 @@ QueryResult *SQLExec::create_table(const CreateStatement *statement) {
 QueryResult *SQLExec::create_index(const CreateStatement *statement) {
     Identifier index_name = statement->indexName;
     Identifier table_name = statement->tableName;
-
+    cout << "::::: Test Marker # 1" << endl;
     // get underlying relation
     DbRelation &table = SQLExec::tables->get_table(table_name);
 
@@ -391,10 +391,12 @@ QueryResult *SQLExec::create_index(const CreateStatement *statement) {
         // attempt to remove from _indices
         try {  // if any exception happens in the reversal below, we still want to re-throw the original ex
             for (auto const &handle: i_handles)
+                cout << "::::: Test Marker DELETE" << endl;
                 SQLExec::indices->del(handle);
         } catch (...) {}
         throw;  // re-throw the original exception (which should give the client some clue as to why it did
     }
+    cout << "::::: Test Marker # 2" << endl;
     return new QueryResult("created index " + index_name);
 }
 

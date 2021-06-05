@@ -398,8 +398,6 @@ QueryResult *SQLExec::create_index(const CreateStatement *statement) {
                 cout << "::::: Test Marker DELETE" << endl;
                 SQLExec::indices->del(handle);
             }
-            DbIndex &index = SQLExec::indices->get_index(table_name, index_name);
-            index.drop();
         } catch (...) {}
         throw;  // re-throw the original exception (which should give the client some clue as to why it did
     }

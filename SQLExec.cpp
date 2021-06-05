@@ -379,6 +379,7 @@ QueryResult *SQLExec::create_index(const CreateStatement *statement) {
     Handles i_handles;
     try {
         for (auto const &col_name: *statement->indexColumns) {
+            cout << "::::: Test Marker INSERTING ROW IN INDEX" << endl;
             row["seq_in_index"] = Value(++seq);
             row["column_name"] = Value(col_name);
             i_handles.push_back(SQLExec::indices->insert(&row));
@@ -394,6 +395,8 @@ QueryResult *SQLExec::create_index(const CreateStatement *statement) {
                 cout << "::::: Test Marker DELETE" << endl;
                 SQLExec::indices->del(handle);
             }
+            DbIndex &index = SQLExec::indices->get_index(table_name, index_name);
+            index.drop();
         } catch (...) {}
         throw;  // re-throw the original exception (which should give the client some clue as to why it did
     }

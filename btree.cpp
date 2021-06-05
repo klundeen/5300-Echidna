@@ -70,7 +70,7 @@ void BTreeIndex::close() {
 // Find all the rows whose columns are equal to key. Assumes key is a dictionary whose keys are the column
 // names in the index. Returns a list of row handles.
 Handles *BTreeIndex::lookup(ValueDict *key_dict) const {
-    BTreeNode lookUpResult;
+    BTreeNode *lookUpResult;
     uint height = 0;
     Handles toReturn = new Handles;
     for (const auto entry : *key_dict) {

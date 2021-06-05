@@ -7,7 +7,7 @@
 #pragma once
 
 #include "storage_engine.h"
-#include "heap_storage.h"
+#include "Fheap_storage.h"
 
 typedef std::vector<ColumnAttribute::DataType> KeyProfile;
 typedef std::vector<Value> KeyValue;

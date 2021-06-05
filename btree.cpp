@@ -78,12 +78,21 @@ void BTreeIndex::close() {
         closed = true;
     }
 }
-
+BTreeNode * _lookup(BTreeNode * node, uint depth, KeyValue *tkey) {
+	if(depth == 1)
+		return node;
+	else {
+		BTreeInterior *lookUpResult = dynamic_cast<BTreeInterior*> (node);
+		
+		return _lookup(lookUpResult->find(tkey,depth),depth-1,tkey);
+	}
+		
+}
 // Find all the rows whose columns are equal to key. Assumes key is a dictionary whose keys are the column
 // names in the index. Returns a list of row handles.
 Handles *BTreeIndex::lookup(ValueDict *key_dict) const {
-    BTreeNode *lookUpResult;
-    uint height = 0;
+    //BTreeNode *lookUpResult;
+    //uint height = 0;
     Handles *toReturn = new Handles;
     for (const auto entry : *key_dict) {
         BTreeLeaf *containingLeaf;
@@ -157,6 +166,12 @@ Insertion BTreeIndex::_insert(BTreeNode *node, uint height, const KeyValue *key,
 }
 
 void BTreeIndex::del(Handle handle) {
+	KeyValue *tkey = this->tkey(relation.project(handle));
+	auto *leaf = _lookup(root,stat->get_height(),tkey);
+	
+	//delete leaf->keys[tkey];
+	//leaf->save();
+	delete tkey;
     throw DbRelationError("Don't know how to delete from a BTree index yet");
     // FIXME
 }

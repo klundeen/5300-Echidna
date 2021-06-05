@@ -4,6 +4,7 @@
  * @see "Seattle University, CPSC5300, Spring 2021"
  */
 #include "btree.h"
+#include <iostream>
 
 BTreeIndex::BTreeIndex(DbRelation &relation, Identifier name, ColumnNames key_columns, bool unique) : DbIndex(relation,
                                                                                                               name,
@@ -27,7 +28,9 @@ BTreeIndex::~BTreeIndex() {
 
 // Create the index.
 void BTreeIndex::create() {
+    std::cout << "CREATE 1" << endl;
     file.create();
+    std::cout << "CREATE 2" << endl;
     stat = new BTreeStat(file, STAT, STAT + 1, key_profile);
     root = new BTreeLeaf(file, stat->get_root_id(), key_profile, true);
     closed = false;

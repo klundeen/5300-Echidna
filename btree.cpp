@@ -82,7 +82,7 @@ Handles *BTreeIndex::lookup(ValueDict *key_dict) const {
             BTreeLeaf *isLeaf;
             bool leafNodeFound = false;
             uint height = stat->get_height();
-            BtreeNode *result;
+            BTreeNode *result;
             do {
                 result = lookUpResult->find(key, height);
                 isLeaf = dynamic_cast<BTreeLeaf*> (lookUpResult);

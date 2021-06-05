@@ -44,8 +44,6 @@ void BTreeIndex::create() {
         drop();
         throw;
     }
-    for (auto const &row: *table_rows)
-        insert(row);
     std::cout << "CREATE 5" << std::endl;
     delete table_rows;
 }

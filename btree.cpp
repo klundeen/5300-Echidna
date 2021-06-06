@@ -218,11 +218,12 @@ bool test_btree() {
         row["b"] = Value(-i);
         table.insert(&row);
     }
+    std::cout << "Test Point 1" << std::endl;
     column_names.clear();
     column_names.push_back("a");
     BTreeIndex index(table, "fooindex", column_names, true);
     index.create();
-
+    std::cout << "Test Point 2" << std::endl;
     ValueDict lookup;
     lookup["a"] = 12;
     Handles *handles = index.lookup(&lookup);
@@ -233,6 +234,7 @@ bool test_btree() {
     }
     delete handles;
     delete result;
+    std::cout << "Test Point 3" << std::endl;
     lookup["a"] = 88;
     handles = index.lookup(&lookup);
     result = table.project(handles->back());
@@ -250,6 +252,7 @@ bool test_btree() {
     }
     delete handles;
 
+    std::cout << "Test Point 4" << std::endl;
     for (uint j = 0; j < 10; j++)
         for (int i = 0; i < 1000; i++) {
             lookup["a"] = i + 100;
@@ -265,6 +268,7 @@ bool test_btree() {
             delete result;
         }
 
+    std::cout << "Test Point End" << std::endl;
     return true;
 
     // test delete

@@ -7,7 +7,8 @@
 - <code>Milestone2</code> has the requirement files for Milestone2.
 - <code>Milestone3</code> Implemented CREATE TABLE, DROP TABLE, SHOW TABLES, SHOW COLUMNS
 - <code>Milestone4</code> Implemented CREATE INDEX, SHOW INDEX, DROP INDEX
-
+- <code>Milestone5</code> Implemented INSERT, DELETE, SELECTED Queries
+- <code>Milestone6</code> Implemented BTREE, and Lookup
 *Sprint Verano:*
 
 To run milestone1 on cs1:
@@ -67,4 +68,34 @@ $ SQL> *enter SQL command here*
 - <code>show index from goober</code>
 - <code>drop index fx from goober</code>
 - <code>drop table goober</code>
+- <code>quit</code>
+
+*Sprint Invierno:*
+
+To run milestone5 and milestone6 on cs1:
+
+
+$ clone git repositiory: git clone https://github.com/klundeen/5300-Echidna
+
+$ cd 5300-Echidna
+
+Note: Remove the old data between each run to prevent DbException error for File Exists
+$ rm -f ~/cpsc5300/data/*
+
+$ make
+
+$ ./sql5300 ~/cpsc5300/data
+
+$ SQL> *enter SQL command here*
+
+- <code>show tables</code>
+- <code>create table goober (x integer, y integer, z integer)</code>
+- <code>show columns from goober </code>
+- <code>create index fx on goober (x,y)</code>
+- <code>show index from goober</code>
+- <code>drop index fx from goober</code>
+- <code>drop table goober</code>
+- <code>insert into goober value (1,2,2);</code>
+- <code>select * from goober </code>
+- <code>delete from goober where y = 2</code>
 - <code>quit</code>

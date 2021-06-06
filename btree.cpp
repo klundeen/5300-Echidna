@@ -94,32 +94,39 @@ BTreeNode * _lookup(BTreeNode * node, uint depth, KeyValue *tkey) {
 // Find all the rows whose columns are equal to key. Assumes key is a dictionary whose keys are the column
 // names in the index. Returns a list of row handles.
 Handles *BTreeIndex::lookup(ValueDict *key_dict) const {
-    //BTreeNode *lookUpResult;
-    //uint height = 0;
     Handles *toReturn = new Handles;
+    cout << "Lookup ::: Inside Lookup" << endl;
     for (const auto entry : *key_dict) {
         BTreeLeaf *containingLeaf;
         KeyValue *key = new KeyValue;
         key->push_back(entry.second);
+        cout << "Lookup ::: Before IF" << endl;
         if (stat->get_height() > 1) {
             BTreeInterior *lookUpResult;
             try {
+                cout << "Lookup ::: Trying Cast to BT-I" << endl;
                 lookUpResult = dynamic_cast<BTreeInterior*> (this->root);
             } catch(...) {}
             BTreeLeaf *isLeaf;
             bool leafNodeFound = false;
             uint height = stat->get_height();
             BTreeNode *result;
+            cout << "Lookup ::: Before do look" << endl;
             do {
                 result = lookUpResult->find(key, height);
                 isLeaf = dynamic_cast<BTreeLeaf*> (lookUpResult);
                 if (isLeaf != NULL) {
+                    cout << "Lookup ::: isLeaf != NULL" << endl;
+                    cout << "Lookup ::: height:" << height << endl;
                     leafNodeFound = true;
                 } else {
+                    cout << "Lookup ::: isLeaf == NULL" << endl;
+                    cout << "Lookup ::: height:" << height << endl;
                     height--;
                     lookUpResult = dynamic_cast<BTreeInterior*> (result);
                 }
             } while (!leafNodeFound);
+            cout << "Lookup ::: exited while loop" << endl;
             containingLeaf = isLeaf;
         } else {
             try {
@@ -129,6 +136,7 @@ Handles *BTreeIndex::lookup(ValueDict *key_dict) const {
             }
         }
         toReturn->push_back(containingLeaf->find_eq(key));
+        cout << "Lookup ::: end of one loop" << endl;
     }
     return toReturn;
 }

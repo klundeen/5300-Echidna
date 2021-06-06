@@ -82,7 +82,9 @@ BTreeNode * _lookup(BTreeNode * node, uint depth, KeyValue *tkey) {
 	if(depth == 1)
 		return node;
 	else {
-		BTreeInterior *lookUpResult = dynamic_cast<BTreeInterior*> (node);
+	    try {
+            BTreeInterior *lookUpResult = dynamic_cast<BTreeInterior*> (node);
+	    } catch (...) {}
 		
 		return _lookup(lookUpResult->find(tkey,depth),depth-1,tkey);
 	}
@@ -99,7 +101,9 @@ Handles *BTreeIndex::lookup(ValueDict *key_dict) const {
         KeyValue *key = new KeyValue;
         key->push_back(entry.second);
         if (stat->get_height() > 1) {
-            BTreeInterior *lookUpResult = dynamic_cast<BTreeInterior*> (this->root);
+            try {
+                BTreeInterior *lookUpResult = dynamic_cast<BTreeInterior*> (this->root);
+            } catch {}
             BTreeLeaf *isLeaf;
             bool leafNodeFound = false;
             uint height = stat->get_height();
@@ -116,7 +120,11 @@ Handles *BTreeIndex::lookup(ValueDict *key_dict) const {
             } while (!leafNodeFound);
             containingLeaf = isLeaf;
         } else {
-            containingLeaf = dynamic_cast<BTreeLeaf*> (this->root);
+            try {
+                containingLeaf = dynamic_cast<BTreeLeaf*> (this->root);
+            } catch (...) {
+
+            }
         }
         toReturn->push_back(containingLeaf->find_eq(key));
     }

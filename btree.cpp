@@ -83,13 +83,13 @@ Handles * BTreeIndex::_lookup(BTreeNode * node, uint depth, const KeyValue *tkey
 	if(depth == 1) {
 
 		auto *leaf = dynamic_cast<BTreeLeaf *>(node);
-	        handles->push_back(leaf->BTreeLeaf::find_eq(tkey));
-	        return handles;
+	    handles->push_back(leaf->BTreeLeaf::find_eq(tkey));
+	    return handles;
 	}
 	else {
 		BTreeInterior *lookUpResult = dynamic_cast<BTreeInterior*> (node);
-		
-		return _lookup(lookUpResult->find(tkey,depth),depth-1,tkey);
+		Handles *hands =  _lookup(lookUpResult->find(tkey,depth),depth-1,tkey);
+		return hands;
 	}
 		
 }
@@ -220,15 +220,17 @@ bool test_btree() {
     }
     delete handles;
     delete result;
+	/*
+    std::cout << "Test Point 4" << std::endl;
     lookup["a"] = 6;
     handles = index.lookup(&lookup);
+	std::cout << "Test Point 4 Ends" << std::endl;
     if (handles->size() != 0) {
         std::cout << "third lookup failed" << std::endl;
         return false;
     }
     delete handles;
-
-    std::cout << "Test Point 4" << std::endl;
+	*/
     for (uint j = 0; j < 10; j++)
         for (int i = 0; i < 1000; i++) {
             lookup["a"] = i + 100;

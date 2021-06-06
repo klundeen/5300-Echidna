@@ -166,12 +166,12 @@ Insertion BTreeIndex::_insert(BTreeNode *node, uint height, const KeyValue *key,
 }
 
 void BTreeIndex::del(Handle handle) {
-	KeyValue *tkey = this->tkey(relation.project(handle));
-	auto *leaf = _lookup(root,stat->get_height(),tkey);
+	// KeyValue *tkey = this->tkey(relation.project(handle));
+	// auto *leaf = _lookup(root,stat->get_height(),tkey);
 	
 	//delete leaf->keys[tkey];
 	//leaf->save();
-	delete tkey;
+	// delete tkey;
     throw DbRelationError("Don't know how to delete from a BTree index yet");
     // FIXME
 }

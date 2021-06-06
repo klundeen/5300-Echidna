@@ -333,7 +333,7 @@ bool test_btree() {
     }
     index.drop();
     table.drop();
-    cout << "----- BTREE TEST COMPLETE" << endl;
+    std::cout << "----- BTREE TEST COMPLETE" << std::endl;
     return true;
 }
 

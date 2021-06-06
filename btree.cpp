@@ -82,8 +82,9 @@ BTreeNode * _lookup(BTreeNode * node, uint depth, KeyValue *tkey) {
 	if(depth == 1)
 		return node;
 	else {
+        BTreeInterior *lookUpResult;
 	    try {
-            BTreeInterior *lookUpResult = dynamic_cast<BTreeInterior*> (node);
+            lookUpResult = dynamic_cast<BTreeInterior*> (node);
 	    } catch (...) {}
 		
 		return _lookup(lookUpResult->find(tkey,depth),depth-1,tkey);

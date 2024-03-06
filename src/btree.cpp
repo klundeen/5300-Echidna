@@ -71,8 +71,28 @@ void BTreeIndex::close() {
 // Find all the rows whose columns are equal to key. Assumes key is a dictionary whose keys are the column
 // names in the index. Returns a list of row handles.
 Handles *BTreeIndex::lookup(ValueDict *key_dict) const {
-    // FIXME
-    return nullptr;
+    KeyValue *key = tkey(key_dict);
+    Handles *handles = _lookup(root, stat->get_height(), key);
+    delete key;
+    return handles;
+}
+
+Handles *BTreeIndex::_lookup(BTreeNode *node, uint height, const KeyValue *key) const {
+    // Base case: node is a leaf
+    if (height == 1) {
+        BTreeLeaf *leaf = dynamic_cast<BTreeLeaf *>(node);
+        try {
+            return new Handles{leaf->find_eq(key)};
+        } catch (std::out_of_range &e) {
+            return new Handles();
+        }
+    }
+    // Recursive case: node is an interior node
+    BTreeInterior *interior = dynamic_cast<BTreeInterior *>(node);
+    BTreeNode *next_node = interior->find(key, height);
+    Handles *result = _lookup(next_node, height - 1, key);
+    delete next_node;
+    return result;
 }
 
 Handles *BTreeIndex::range(ValueDict *min_key, ValueDict *max_key) const {
@@ -167,7 +187,6 @@ bool test_btree() {
     column_names.push_back("a");
     BTreeIndex index(table, "fooindex", column_names, true);
     index.create();
-    return true;  // FIXME
 
 
     ValueDict lookup;
@@ -211,7 +230,12 @@ bool test_btree() {
             delete handles;
             delete result;
         }
+    // TODO: Remove these
+    index.drop();
+    table.drop();
+    return true;
 
+    // FIXME Implement delete
     // test delete
     ValueDict row;
     row["a"] = 44;
@@ -237,6 +261,7 @@ bool test_btree() {
     }
     delete handles;
 
+    // FIXME: Implement range
     // test range
     ValueDict minkey, maxkey;
     minkey["a"] = 100;
@@ -282,5 +307,3 @@ bool test_btree() {
     table.drop();
     return true;
 }
-
-

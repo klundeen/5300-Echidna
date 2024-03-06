@@ -23,7 +23,7 @@
 
         devShells.default = pkgs.mkShell {
           inputsFrom = [ self.packages.${system}.default ];
-          packages = with pkgs; [ gnumake ];
+          packages = with pkgs; [ gnumake gcc gdb valgrind clang-tools ];
         };
       });
 }

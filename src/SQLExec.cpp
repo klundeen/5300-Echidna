@@ -184,14 +184,15 @@ QueryResult* SQLExec::del(const DeleteStatement* statement) {
     Handles* handles = plan->pipeline().second;
     IndexNames indices = SQLExec::indices->get_index_names(table_name);
     for (const Handle& handle : *handles) {
-        for (const Identifier& index : indices)
-            SQLExec::indices->get_index(table_name, index).del(handle);
+        // FIXME: Implement index row del
+        // for (const Identifier& index : indices)
+        //     SQLExec::indices->get_index(table_name, index).del(handle);
         table.del(handle);
     }
 
     size_t rows_n = handles->size();
     size_t indices_n = indices.size();
-    string suffix = indices_n ? " and from " + to_string(indices_n) + " indices" : "";
+    string suffix = indices_n ? " FIXME: and from " + to_string(indices_n) + " indices" : "";
     delete plan;
     delete handles;
     return new QueryResult("successfully deleted " + to_string(rows_n) + " rows" + suffix);

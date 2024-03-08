@@ -4,7 +4,6 @@
  * @see "Seattle University, CPSC5300, Winter Quarter 2024"
  */
 #include "btree.h"
-#include "storage_engine.h"
 
 BTreeIndex::BTreeIndex(DbRelation &relation, Identifier name, ColumnNames key_columns, bool unique) : DbIndex(relation,
                                                                                                               name,
@@ -267,9 +266,7 @@ bool test_btree() {
     minkey["a"] = 100;
     maxkey["a"] = 310;
     handles = index.range(&minkey, &maxkey);
-    ValueDicts *results = new ValueDicts();
-    for (Handle handle: *handles)
-        results->push_back(table.project(handle));
+    ValueDicts *results = table.project(handles);
     for (int i = 0; i < 210; i++) {
         if (results->at(i)->at("a") != Value(100 + i)) {
             ValueDict *wrong = results->at(i);

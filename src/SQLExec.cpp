@@ -4,6 +4,7 @@
  * @see "Seattle University, CPSC5300, Winter 2024"
  */
 #include "SQLExec.h"
+#include <sql/DropStatement.h>
 
 using namespace std;
 using namespace hsql;
@@ -366,7 +367,17 @@ QueryResult* SQLExec::create_index(const CreateStatement* statement) {
 
     // call get_index to get a reference to the new index and then invoke the create method on it
     DbIndex& index = SQLExec::indices->get_index(string(statement->tableName), string(statement->indexName));
-    index.create();
+    try {
+        index.create();
+    } catch (DbRelationError& e) {
+        DropStatement drop(DropStatement::kIndex);
+        drop.name = statement->tableName;
+        drop.indexName = statement->indexName;
+        SQLExec::drop_index(&drop);
+        drop.name = nullptr;
+        drop.indexName = nullptr;
+        throw e;
+    }
 
     return new QueryResult("created index " + string(statement->indexName));
 }
